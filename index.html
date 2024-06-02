@@ -8,44 +8,110 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            display: flex;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
         }
 
         #audioPlayer,
-        #textDisplay {
+        #textContent {
             margin-top: 20px;
+        }
+
+        #audioContainer {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            z-index: 1;
+            max-width: calc(100% - 80px);
+        }
+
+        .divider {
+            border-left: 2px solid black;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 260px; /* Initial position, will be adjusted dynamically */
+            z-index: 0;
+        }
+
+        #textContainer {
+            overflow-y: auto;
+            height: 100vh;
+            padding-left: 20px;
+            flex-grow: 1;
+            margin-left: 280px; /* Initial margin-left, will be adjusted dynamically */
         }
     </style>
 </head>
 
 <body>
-    <input type="file" id="audioFile" accept="audio/*">
-    <div id="audioPlayer"></div>
+    <div class="container" id="audioContainer">
+        <label for="audioFile">Choose an audio file</label>
+        <input type="file" id="audioFile" accept="audio/*">
+        <div id="audioPlayer"></div>
+    </div>
 
-    <input type="file" id="textFile" accept=".txt">
-    <div id="textDisplay"></div>
+    <div class="divider" id="divider"></div>
+
+    <div class="container" id="textContainer">
+        <label for="textFile">Choose a text file</label>
+        <input type="file" id="textFile" accept=".txt">
+        <div id="textContent"></div>
+    </div>
 
     <script>
         const audioFileInput = document.getElementById('audioFile');
         const audioPlayerDiv = document.getElementById('audioPlayer');
         const textFileInput = document.getElementById('textFile');
-        const textDisplayDiv = document.getElementById('textDisplay');
+        const textContentDiv = document.getElementById('textContent');
+        const divider = document.getElementById('divider');
+        const audioContainer = document.getElementById('audioContainer');
+        const textContainer = document.getElementById('textContainer');
+
+        function adjustLayout() {
+            const audioContainerWidth = audioContainer.offsetWidth;
+            divider.style.left = `${audioContainerWidth + 40}px`;
+            textContainer.style.marginLeft = `${audioContainerWidth + 60}px`;
+        }
 
         audioFileInput.addEventListener('change', function (event) {
             const file = event.target.files[0];
-            const audioURL = URL.createObjectURL(file);
-            const audioPlayer = `<audio controls><source src="${audioURL}" type="audio/mp3">Your browser does not support the audio element.</audio>`;
-            audioPlayerDiv.innerHTML = audioPlayer;
+            if (file) {
+                const audioURL = URL.createObjectURL(file);
+                const audioPlayer = `<audio controls><source src="${audioURL}" type="audio/mp3">Your browser does not support the audio element.</audio>`;
+                audioPlayerDiv.innerHTML = audioPlayer;
+
+                // Adjust the divider position based on the width of the audio container
+                setTimeout(adjustLayout, 100); // Delay to ensure the audio player is rendered
+            }
         });
 
         textFileInput.addEventListener('change', function (event) {
             const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const text = e.target.result;
-                textDisplayDiv.innerText = text;
-            };
-            reader.readAsText(file);
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const text = e.target.result;
+                    textContentDiv.innerHTML = ''; // Clear existing content
+                    const textContent = document.createElement('div');
+                    textContent.innerText = text;
+                    textContentDiv.appendChild(textContent);
+                };
+                reader.readAsText(file);
+            }
         });
+
+        // Initial adjustment for the divider position
+        adjustLayout();
+        window.addEventListener('resize', adjustLayout); // Adjust layout on window resize
     </script>
 </body>
 
