@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio and Text Player</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #audioPlayer, #textDisplay {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Upload and Play Audio</h1>
+  <input type="file" id="audioFile" accept="audio/*">
+  <div id="audioPlayer"></div>
+
+  <h1>Upload and Display Text</h1>
+  <input type="file" id="textFile" accept=".txt">
+  <div id="textDisplay"></div>
+
+  <script>
+    const audioFileInput = document.getElementById('audioFile');
+    const audioPlayerDiv = document.getElementById('audioPlayer');
+    const textFileInput = document.getElementById('textFile');
+    const textDisplayDiv = document.getElementById('textDisplay');
+
+    audioFileInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      const audioURL = URL.createObjectURL(file);
+      const audioPlayer = `<audio controls><source src="${audioURL}" type="audio/mp3">Your browser does not support the audio element.</audio>`;
+      audioPlayerDiv.innerHTML = audioPlayer;
+    });
+
+    textFileInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        textDisplayDiv.innerText = text;
+      };
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
+
